@@ -2,3 +2,18 @@
 
 #include "rnd.h"
 
+HWND TK6_hRndWnd;        /* Work window handle */
+HDC TK6_hRndDCFrame;     /* Work window memory device context  */
+HBITMAP TK6_hRndBmFrame; /* Work window background bitmap handle */
+INT TK6_RndFrameW, TK6_RndFrameH; /* Work window size */
+ 
+DBL
+  TK6_RndProjSize = 0.1,     /* Project plane fit square */
+  TK6_RndProjDist = 0.1,     /* Distance to project plane from viewer (near) */
+  TK6_RndProjFarClip = 300;  /* Distance to project far clip plane (far) */
+ 
+MATR
+  TK6_RndMatrView, /* View coordinate system matrix */
+  TK6_RndMatrProj, /* Projection coordinate system matrix */
+  TK6_RndMatrVP;   /* Stored (View * Proj) matrix */
+

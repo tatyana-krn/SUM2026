@@ -1,30 +1,26 @@
 /* Kurnosova Tatuana, 10-6, 09.06.2026 */
 
-#include "rnd.h"
+#include "rnd.h"                                                                                                            
 
-HWND TK6_hRndWnd;        /* Work window handle */
-HDC TK6_hRndDCFrame;     /* Work window memory device context  */
-HBITMAP TK6_hRndBmFrame; /* Work window background bitmap handle */
-INT TK6_RndFrameW, TK6_RndFrameH; /* Work window size */
- 
-DBL
-  TK6_RndProjSize = 0.1,     /* Project plane fit square */
-  TK6_RndProjDist = 0.1,     /* Distance to project plane from viewer (near) */
-  TK6_RndProjFarClip = 300;  /* Distance to project far clip plane (far) */
- 
-MATR
-  TK6_RndMatrView, /* View coordinate system matrix */
-  TK6_RndMatrProj, /* Projection coordinate system matrix */
-  TK6_RndMatrVP;   /* Stored (View * Proj) matrix */
 
 
 
 VOID TK6_RndInit( HWND hWnd )
 {
+  HDC hDC = GetDC(hWnd);
+
+  TK6_hRndDCFrame = CreateCompatibleDC(hDC);
+  ReleaseDC(hWnd, hDC);
+  TK6_hRndWnd = hWnd;
+  TK6_hRndBmFrame = NULL;
+  TK6_RndResize(100, 100);
+  TK6_RndCamSet(VecSetAll(5), VecSetAll(0), VecSet(0, 1, 0));
 }
 
 VOID TK6_RndClose( VOID )
 {
+  DeleteObject(TK6_hRndBmFrame);
+  DeleteDC(TK6_hRndDCFrame);
 }
 
 VOID TK6_RndResize( INT W, INT H )
@@ -50,6 +46,10 @@ VOID TK6_RndCopyFrame( HDC hDC )
 
 VOID TK6_RndStart( VOID )
 {
+  SetDCPenColor(TK6_hRndDCFrame, RGB(10, 189, 220));
+  SelectObject(TK6_hRndDCFrame, GetStockObject(DC_PEN));
+  SelectObject(TK6_hRndDCFrame, GetStockObject(BLACK_BRUSH));
+  Rectangle(TK6_hRndDCFrame, 0, TK6_RndFrameH, TK6_RndFrameW, 0);
 }
 
 VOID TK6_RndEnd( VOID )
@@ -81,15 +81,7 @@ VOID TK6_RndCamSet( VEC Loc, VEC At, VEC Up )
 }
  
  
-VOID TK6_RndPrimDraw( tk6PRIM *Pr, MATR World )
-{
-  MATR wvp = MatrMulMatr(World, TK6_RndMatrVP);
 
-    VEC p = VecMulMatr(Prim->V[i], wvp);
- 
-    pnts[i].x = (INT)((P.X + 1) * TK6_RndFrameW / 2);
-    pnts[i].y = (INT)((-P.Y + 1) * TK6_RndFrameH / 2);
-}
  
 
 

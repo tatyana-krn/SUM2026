@@ -1,8 +1,14 @@
+/* FILE NAME: mth.h
+ * PURPOSE: 3D math implementation module.
+ * PROGRAMMER: TK6
+ * DATE: 08.06.2026
+ */
 
 #ifndef __mth_h_
 #define __mth_h_
 
 #include <math.h>
+
 #include <windows.h>
 
 /* Pi math constant */
@@ -14,7 +20,7 @@
 
 #define VecAddVec3(A, B, C) VecAddVec(A, VecAddVec(B, C))
 #define VecAddVec4(A, B, C, D) VecAddVec(VecAddVec(A, B), VecAddVec(C, D))
-#define MatrMulMatr3(A, B, C) MatrMulMatr(A, (B, C))
+#define MatrMulMatr3(A, B, C) MatrMulMatr(A, MatrMulMatr(B, C))
 #define MatrMulMatr4(A, B, C, D) MatrMulMatr(MatrMulMatr(A, B), MatrMulMatr(C, D))
 
 #define UnitMatrix \
@@ -31,6 +37,13 @@
 typedef double DBL;
 typedef float FLT;
 
+/* Space vector/point representation type */
+typedef struct tagVEC
+{
+  DBL X, Y, Z; /* Vector coordinates */
+} VEC;
+
+/* Transformation matrix representation type */
 typedef struct tagMATR
 {
   DBL A[4][4]; /* Matrix elements */
@@ -141,8 +154,8 @@ __inline DBL VecDotVec( VEC V1, VEC V2 )
 __inline VEC VecCrossVec( VEC V1, VEC V2 )
 {
   return VecSet(V1.Y * V2.Z - V1.Z * V2.Y,
-                V1.X * V2.Z - V1.Z * V2.X,
-                V1.X * V2.Y - V1.X * V2.Y);
+                V1.Z * V2.X - V1.X * V2.Z,
+                V1.X * V2.Y - V1.Y * V2.X);
 } /* End of 'VecCrossVec' function */
 
 __inline DBL VecLen( VEC V )
@@ -320,26 +333,40 @@ __inline MATR MatrScale( VEC S )
 
 __inline MATR MatrRotateX( DBL AngleInDegree )
 {
-  return MatrSet(1, 0,                   0,                  0,
-                 0, cos(AngleInDegree),  sin(AngleInDegree), 0,
-                 0, -sin(AngleInDegree), cos(AngleInDegree), 0,
-                 0, 0,                   0,                  1);
+  DBL co, si;
+
+  AngleInDegree = D2R(AngleInDegree);
+  co = cos(AngleInDegree), si = sin(AngleInDegree);
+
+  return MatrSet(1, 0,   0,  0,
+                 0, co,  si, 0,
+                 0, -si, co, 0,
+                 0, 0,   0,  1);
 } /* End of 'VecMulNum' function */
 
 __inline MATR MatrRotateY( DBL AngleInDegree )
 {
-  return MatrSet(cos(AngleInDegree),   0, sin(AngleInDegree), 0,
-                 0,                    1,                  0, 0,
-                 sin(AngleInDegree),   0, cos(AngleInDegree), 0,
-                 0,                    0, 0,                  1);
+  DBL co, si;
+
+  AngleInDegree = D2R(AngleInDegree);
+  co = cos(AngleInDegree), si = sin(AngleInDegree);
+
+  return MatrSet(co,   0,  -si, 0,
+                 0,    1,  0,   0,
+                 si,   0,  co,  0,
+                 0,    0,  0,   1);
 } /* End of 'VecMulNum' function */
 
 __inline MATR MatrRotateZ( DBL AngleInDegree )
 {
-  return MatrSet(cos(AngleInDegree),   sin(AngleInDegree), 0, 0,
-                 -sin(AngleInDegree),  cos(AngleInDegree), 0, 0,
-                 0,                    0,                  1, 0,
-                 0,                    0,                  0, 1);
+  DBL co, si;
+
+  AngleInDegree = D2R(AngleInDegree);
+  co = cos(AngleInDegree), si = sin(AngleInDegree);
+  return MatrSet(co,   si, 0, 0,
+                 -si,  co, 0, 0,
+                 0,     0, 1, 0,
+                 0,     0, 0, 1);
 } /* End of 'VecMulNum' function */
 
 __inline MATR MatrRotate( DBL AngleInDegree, VEC V )
@@ -351,5 +378,53 @@ __inline MATR MatrRotate( DBL AngleInDegree, VEC V )
                        R.Z * R.X * (1 - cos(AngleInDegree)) + R.Y * cos(AngleInDegree), R.Z * R.Y * (1 - cos(AngleInDegree)) - R.X * cos(AngleInDegree), cos(AngleInDegree) + R.Z * R.Z * (1 - cos(AngleInDegree)), 1,
                        1, 1, 1, 1));
 } /* End of 'VecMulNum' function */
+
+ /* Matrix look-at viewer setup function.
+ * ARGUMENTS:
+ *   - viewer position, look-at point, approximate up direction:
+ *       VEC Loc, At, Up1;
+ * RETURNS:
+ *   (MATR) result matrix.
+ */
+__inline MATR MatrView( VEC Loc, VEC At, VEC Up1 )
+{
+  VEC
+    Dir = VecNormalize(VecSubVec(At, Loc)),
+    Right = VecNormalize(VecCrossVec(Dir, Up1)),
+    Up = VecNormalize(VecCrossVec(Right, Dir));
+  MATR m =
+  {
+    {
+      {Right.X, Up.X, -Dir.X, 0},
+      {Right.Y, Up.Y, -Dir.Y, 0},
+      {Right.Z, Up.Z, -Dir.Z, 0},
+      {-VecDotVec(Loc, Right), -VecDotVec(Loc, Up), VecDotVec(Loc, Dir), 1}
+    }
+  };
+ 
+  return m;
+} /* End of 'MatrView' function */
+
+/* Perspective (frustum) projection matrix setup function.
+ * ARGUMENTS:
+ *   - frustum side facets coordinates:
+ *       DBL Left, Right, Bottom, Top, Near, Far;
+ * RETURNS:
+ *   (MATR) result matrix.
+ */
+__inline MATR MatrFrustum( DBL Left, DBL Right, DBL Bottom, DBL Top, DBL Near, DBL Far )
+{
+  MATR m =
+  {
+    {
+      {      2 * Near / (Right - Left),                               0,                              0,  0},
+      {                              0,       2 * Near / (Top - Bottom),                              0,  0},
+      {(Right + Left) / (Right - Left), (Top + Bottom) / (Top - Bottom),   -(Far + Near) / (Far - Near), -1},
+      {                              0,                               0, -2 * Near * Far / (Far - Near),  0}
+    }
+  };
+
+  return m;
+} /* End of 'MatrFrustum' function */
 
 #endif /* __mth_h_ */
