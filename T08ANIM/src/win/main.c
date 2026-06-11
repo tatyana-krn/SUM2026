@@ -1,11 +1,10 @@
 /* Kurnosova Tatuana, 10-6, 09.06.2026 */
 
-#include <time.h>
-
 #include "def.h"
-#include "anim/rnd/rnd.h"
 
-#define WND_CLASS_NAME "simmer praaactise 676767"
+#include "units/units.h"
+
+#define WND_CLASS_NAME "Z z z lelele"
 
 LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam );
 
@@ -34,92 +33,73 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrewInstance, CHAR *CmdLine,
     return 0;
   }
 
-  hwnd = CreateWindowA(WND_CLASS_NAME, "lele le can cancan", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 1950, 0, 900, 700, NULL, NULL, hInstance, NULL);
+  hwnd = CreateWindow(WND_CLASS_NAME, "lele le can cancan", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 1950, 0, 900, 700, NULL, NULL, hInstance, NULL);
  
+  TK6_AnimUnitAdd(TK6_AnimUnitCreate(sizeof(tk6UNIT)));
+  
+  /*
+  ShowWindow(hwnd, CmdShow);
+  */
+  while (TRUE)
+    if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+    {
+      if (msg.message == WM_QUIT)
+        break;
+      DispatchMessage(&msg);
+    }
+    else
+      SendMessage(hwnd, WM_TIMER, 47, 0);
+  /*
   while (GetMessage(&msg, NULL, 0, 0))
   {
     TranslateMessage(&msg);
     DispatchMessage(&msg);
   }
+  */
   return msg.wParam;
+  
 }
 
 LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
 {
-
   HDC hDC;
   PAINTSTRUCT ps;
-  static HPEN hPen, hOldPen;
-  static BOOL is_select = FALSE;
-  static INT W, H;
-  static HBITMAP hBm;
-  static tk6PRIM Pr, PrSphere, Pr1;
- 
-
- 
+  MINMAXINFO *minmax;
 
   switch (Msg)
   {
+  case WM_GETMINMAXINFO:
+    minmax = (MINMAXINFO *)lParam;
+    minmax->ptMinTrackSize.y += 100;
+    minmax->ptMaxTrackSize.y = GetSystemMetrics(SM_CYMAXTRACK) + 
+      GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYBORDER) * 2;
+   return 0;
   case WM_CREATE:
-    hDC = GetDC(hWnd);
-    ReleaseDC(hWnd, hDC);
-    SetTimer(hWnd, 47, 2, NULL);
-    TK6_RndInit(hWnd);
-    TK6_RndPrimCreateSphere(&PrSphere, 1, 20, 10);
-    if (TK6_RndPrimLoad(&Pr1, "bin/models/cow.obj"))
-    if (TK6_RndPrimCreate(&Pr, 4, 6))
-    {
-      Pr.V[0].P = VecSet(0, 0, 0);
-      Pr.V[1].P = VecSet(2, 0, 0);
-      Pr.V[2].P = VecSet(0, 2, 0);
-      Pr.V[3].P = VecSet(2, 2, 0);
- 
-      Pr.I[0] = 0;
-      Pr.I[1] = 1;
-      Pr.I[2] = 2;
- 
-      Pr.I[3] = 2;
-      Pr.I[4] = 1;
-      Pr.I[5] = 3;
-    }
-    
+    SetTimer(hWnd, 47, 1, NULL);
+    TK6_AnimInit(hWnd);
     return 0;
   case WM_SIZE:
-    TK6_RndResize(LOWORD(lParam), HIWORD(lParam));
+    TK6_AnimResize(LOWORD(lParam), HIWORD(lParam));
     SendMessage(hWnd, WM_TIMER, 47, 0);
     return 0;
-  case WM_LBUTTONDOWN:
-    InvalidateRect(hWnd, NULL, FALSE);
-    return 0;
   case WM_TIMER:
-    TK6_RndStart();
-    TK6_RndPrimDraw(&PrSphere, MatrRotateY(30 * clock() / 1000.0));
-    TK6_RndPrimDraw(&Pr1, MatrTranslate(VecSet(0, 2 * sin(clock()) + 2, 0)));
-    TK6_RndPrimDraw(&Pr, MatrRotateY(30 * clock() / 1000.0));
-    TK6_RndEnd();
-
-    InvalidateRect(hWnd, NULL, FALSE);
+    TK6_AnimRender();
+    
+    hDC = GetDC(hWnd);
+    TK6_AnimCopyFrame(hDC);
+    ReleaseDC(hWnd, hDC);
     return 0;
-  case WM_COMMAND:
-    return 0;  
   case WM_PAINT:
     hDC = BeginPaint(hWnd, &ps);
-    TK6_RndCopyFrame(hDC);
+    TK6_AnimCopyFrame(hDC);
     EndPaint(hWnd, &ps);
     return 0;
-  case WM_CLOSE:
-    if (MessageBox(hWnd, "r u sure abt it?", "Exit", MB_YESNO | MB_ICONQUESTION) == IDNO)
-      return 0;
-    break;
   case WM_ERASEBKGND:
     return 1;
   case WM_DESTROY:
-    TK6_RndPrimFree(&PrSphere);
-    TK6_RndPrimFree(&Pr);
-    TK6_RndPrimFree(&Pr1);
-    TK6_RndClose();
-    KillTimer(hWnd, 47);
+    TK6_AnimClose();
     PostQuitMessage(30);
+    KillTimer(hWnd, 47);
     return 0;
   }
 

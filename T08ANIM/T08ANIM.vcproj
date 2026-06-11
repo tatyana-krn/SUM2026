@@ -242,6 +242,10 @@
 				Name="Unit Samples"
 				>
 				<File
+					RelativePath=".\src\units\u_cow.c"
+					>
+				</File>
+				<File
 					RelativePath=".\src\units\units.h"
 					>
 				</File>

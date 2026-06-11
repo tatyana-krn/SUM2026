@@ -48,7 +48,7 @@ VOID TK6_RndStart( VOID )
 {
   SetDCPenColor(TK6_hRndDCFrame, RGB(10, 189, 220));
   SelectObject(TK6_hRndDCFrame, GetStockObject(DC_PEN));
-  SelectObject(TK6_hRndDCFrame, GetStockObject(BLACK_BRUSH));
+  SelectObject(TK6_hRndDCFrame, GetStockObject(WHITE_BRUSH));
   Rectangle(TK6_hRndDCFrame, 0, TK6_RndFrameH, TK6_RndFrameW, 0);
 }
 
