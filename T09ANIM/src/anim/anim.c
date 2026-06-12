@@ -4,16 +4,12 @@
 
 tk6ANIM TK6_Anim;
 
-tk6UNIT * Units[TK6_MAX_UNITS];
-INT NumOfUnits;
-
-
 VOID TK6_AnimInit( HWND hWnd )
 {
   memset(&TK6_Anim, 0, sizeof(tk6ANIM));
   TK6_Anim.hWnd = hWnd;
   TK6_RndInit(hWnd);
-  TK6_Anim.hDC = TK6_hRndDCFrame;
+  TK6_Anim.hDC = TK6_hRndDC;
   TK6_Anim.H = TK6_RndFrameH;
   TK6_Anim.W = TK6_RndFrameW;
   TK6_TimerInit();
@@ -41,9 +37,9 @@ VOID TK6_AnimResize( INT W, INT H )
   TK6_AnimRender();
 }
 
-VOID TK6_AnimCopyFrame( HDC hDC )
+VOID TK6_AnimCopyFrame( VOID )
 {
-  TK6_RndCopyFrame(hDC);
+  TK6_RndCopyFrame();
 }
 
 VOID TK6_AnimRender( VOID )

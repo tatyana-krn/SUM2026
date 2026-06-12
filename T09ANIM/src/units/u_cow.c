@@ -16,7 +16,9 @@ struct tagtk6UNIT_COW
  
 static VOID TK6_UnitInit( tk6UNIT_COW *Uni, tk6ANIM *Ani )
 {
-  Uni->Pos = VecSet(-5 + rand() % 7, -4, -3 + rand() % 7);
+  //TK6_RndPrimCreateSphere(&Uni->Cow, 3, 40, 40);
+
+  Uni->Pos = VecSet(Rnd1() * 10, -2, Rnd1() * 10);
   TK6_RndPrimLoad(&Uni->Cow, "bin/models/cow.obj");
   Uni->Fast = rand() % 5 + 3;
 }
@@ -34,9 +36,7 @@ static VOID TK6_UnitResponse( tk6UNIT_COW *Uni, tk6ANIM *Ani )
  
 static VOID TK6_UnitRender( tk6UNIT_COW *Uni, tk6ANIM *Ani )
 {
-  DBL t = clock() / 800.0;
-
-  TK6_RndPrimDraw(&Uni->Cow, MatrMulMatr4(MatrRotateX(0), MatrRotateY(0), MatrRotateZ(5 * cos(t * Uni->Fast)), MatrTranslate(Uni->Pos)));
+  TK6_RndPrimDraw(&Uni->Cow, MatrMulMatr4(MatrRotateX(0), MatrRotateY(Ani->Time * 10 * Uni->Fast), MatrRotateZ(5 * cos(Ani->Time * Uni->Fast)), MatrTranslate(Uni->Pos)));
   //TK6_RndPrimDraw(&Uni->Cow, MulMatrMul(sin(clock() / 800.0) * Uni->Fast, MatrTranslate(Uni->Pos));
 }
  

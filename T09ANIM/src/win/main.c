@@ -13,8 +13,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrewInstance, CHAR *CmdLine,
   HWND hwnd;
   WNDCLASS wc;
   MSG msg;
-  INT i;
-
+  
   SetDbgMemHooks();
 
   wc.style = CS_HREDRAW | CS_VREDRAW;
@@ -36,9 +35,11 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrewInstance, CHAR *CmdLine,
 
   hwnd = CreateWindow(WND_CLASS_NAME, "lele le can cancan", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 1950, 0, 900, 700, NULL, NULL, hInstance, NULL);
  
-  srand(47);
-  for (i = 0; i < 3; i++)
-    TK6_AnimUnitAdd(TK6_UnitCreateCow());
+  TK6_AnimUnitAdd(TK6_UnitCreateCow());
+  TK6_AnimUnitAdd(TK6_UnitCreateCow());
+  TK6_AnimUnitAdd(TK6_UnitCreateCow());
+  TK6_AnimUnitAdd(TK6_UnitCreateCow());
+  TK6_AnimUnitAdd(TK6_UnitCreateCow());
   
   /*
   ShowWindow(hwnd, CmdShow);
@@ -87,14 +88,11 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     return 0;
   case WM_TIMER:
     TK6_AnimRender();
-    
-    hDC = GetDC(hWnd);
-    TK6_AnimCopyFrame(hDC);
-    ReleaseDC(hWnd, hDC);
+    TK6_AnimCopyFrame();
     return 0;
   case WM_PAINT:
     hDC = BeginPaint(hWnd, &ps);
-    TK6_AnimCopyFrame(hDC);
+    TK6_AnimCopyFrame();
     EndPaint(hWnd, &ps);
     return 0;
   case WM_ERASEBKGND:
