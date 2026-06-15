@@ -30,18 +30,43 @@ typedef struct tagtk6VERTEX
   VEC4 C;  /* Vertex color */
 } tk6VERTEX;
  
+/*
+typedef struct tagtk6PRIM
+{
+  tk6VERTEX *V;
+  INT NumOfV;
+ 
+  INT *I;
+  INT NumOfI;
+ 
+  MATR Trans;
+} tk6PRIM;
+*/
+typedef enum tagtk6PRIM_TYPE
+{
+  TK6_RND_PRIM_POINTS,   /* Array of points  – GL_POINTS */
+  TK6_RND_PRIM_LINES,    /* Line segments (by 2 points) – GL_LINES */
+  TK6_RND_PRIM_TRIMESH,  /* Triangle mesh - array of triangles – GL_TRIANGLES */
+} tk6PRIM_TYPE;
+ 
+ 
 /* Primitive representation type */
 typedef struct tagtk6PRIM
 {
-  tk6VERTEX *V; /* Vertex attributes array */
-  INT NumOfV;   /* Number of vertices */
+  tk6PRIM_TYPE Type; /* Primitive type */
  
-  INT *I;       /* Index array (for trimesh – by 3 ones) */
-  INT NumOfI;   /* Number of indices */
+  INT
+    VA,              /* Vertex array Id */
+    VBuf,            /* Vertex buffer Id */
+    IBuf;            /* Index buffer Id (if 0 - use only vertex buffer) */
+ 
+  INT NumOfElements; /* Number of indices/vecrtices */
+ 
+  VEC MinBB, MaxBB;  /* Bound box */
  
   MATR Trans;   /* Additional transformation matrix */
 } tk6PRIM;
-
+ 
  
 VOID TK6_RndInit( HWND hWnd );
 VOID TK6_RndClose( VOID );
@@ -56,7 +81,7 @@ VOID TK6_RndCamSet( VEC Loc, VEC At, VEC Up );
 VOID TK6_RndPrimFree( tk6PRIM *Pr );
 VOID TK6_RndPrimDraw( tk6PRIM *Pr, MATR World );
 VOID TK6_RndPrimFree( tk6PRIM *Pr );
-BOOL TK6_RndPrimCreate( tk6PRIM *Pr, INT NoofV, INT NoofI );
+VOID TK6_RndPrimCreate( tk6PRIM *Pr, tk6PRIM_TYPE Type, tk6VERTEX *V, INT NoofV, INT *Ind, INT NoofI );
 BOOL TK6_RndPrimCreateSphere( tk6PRIM *Pr, DBL R, INT W, INT H );
 
 BOOL TK6_RndPrimLoad( tk6PRIM *Pr, CHAR *FileName );

@@ -18,7 +18,7 @@ static VOID TK6_UnitInit( tk6UNIT_COW *Uni, tk6ANIM *Ani )
 {
   //TK6_RndPrimCreateSphere(&Uni->Cow, 3, 40, 40);
 
-  Uni->Pos = VecSet(Rnd1() * 10, -2, Rnd1() * 10);
+  Uni->Pos = VecSet(Rnd1() * -20, -12, Rnd1() * -20);
   TK6_RndPrimLoad(&Uni->Cow, "bin/models/cow.obj");
   Uni->Fast = rand() % 5 + 3;
 }
