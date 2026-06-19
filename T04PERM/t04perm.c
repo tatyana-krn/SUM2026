@@ -34,6 +34,7 @@ VOID Store( VOID )
   fclose(F);
 }
 
+
 VOID Go( INT Pos )
 {
   INT i;
@@ -61,3 +62,6 @@ VOID main( VOID )
     mas[i] = i + 1;
   Go(0);  
 }
+
+
+

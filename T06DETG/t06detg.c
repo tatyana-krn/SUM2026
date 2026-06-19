@@ -90,3 +90,14 @@ VOID main( VOID )
   Go(0); 
   _getch();
 }
+
+VOID main( VOID )
+{
+  DBL Det;
+
+  LoadMatrix("b.txt");
+  Det = f();
+
+  printf("%f", Det);
+  getchar();
+}

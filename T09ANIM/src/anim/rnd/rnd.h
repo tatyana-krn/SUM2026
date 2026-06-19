@@ -7,9 +7,13 @@
 #include <glew.h>
 #include "def.h"
 
+#include "res/rndres.h"
+
+
 extern HWND TK6_hRndWnd;
 extern HDC TK6_hRndDC;
 extern INT TK6_RndFrameW, TK6_RndFrameH;
+extern HGLRC TK6_hRndGLRC;
  
 extern DBL
   TK6_RndProjSize,     /* Project plane fit square */
@@ -20,6 +24,9 @@ extern MATR
   TK6_RndMatrView, /* View coordinate system matrix */
   TK6_RndMatrProj, /* Projection coordinate system matrix */
   TK6_RndMatrVP;   /* Stored (View * Proj) matrix */
+
+extern VEC
+  TK6_RndCamLoc;
 
 /* Vertex representation type */
 typedef struct tagtk6VERTEX
@@ -65,6 +72,8 @@ typedef struct tagtk6PRIM
   VEC MinBB, MaxBB;  /* Bound box */
  
   MATR Trans;   /* Additional transformation matrix */
+
+  INT MtlNo; /* Material number in material array */
 } tk6PRIM;
  
  
@@ -85,6 +94,11 @@ VOID TK6_RndPrimCreate( tk6PRIM *Pr, tk6PRIM_TYPE Type, tk6VERTEX *V, INT NoofV,
 BOOL TK6_RndPrimCreateSphere( tk6PRIM *Pr, DBL R, INT W, INT H );
 
 BOOL TK6_RndPrimLoad( tk6PRIM *Pr, CHAR *FileName );
+
+VOID APIENTRY glDebugOutput( UINT Source, UINT Type, UINT Id, UINT Severity,
+                             INT Length, const CHAR *Message,
+                             const VOID *UserParam );
+
 
 
 #endif /* __rnd_h_ */

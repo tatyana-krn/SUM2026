@@ -7,34 +7,33 @@
 
 #pragma comment(lib, "opengl32")
 
-HGLRC TK6_hRndGLRC;
-HGLRC hRC;
-
-INT PixelAttribs[] =
-{
-  WGL_DRAW_TO_WINDOW_ARB, TRUE,
-  WGL_SUPPORT_OPENGL_ARB, TRUE,
-  WGL_DOUBLE_BUFFER_ARB, TRUE,
-  WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
-  WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
-  WGL_COLOR_BITS_ARB, 32,
-  WGL_DEPTH_BITS_ARB, 32,
-  0
-};
-INT ContextAttribs[] =
-{
-  WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
-  WGL_CONTEXT_MINOR_VERSION_ARB, 6,
-  WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
-                                /* WGL_CONTEXT_CORE_PROFILE_BIT_ARB, */
-  0
-};
 
 
 VOID TK6_RndInit( HWND hWnd )
 {
   INT i;
   PIXELFORMATDESCRIPTOR pfd = {0};
+  HGLRC hRC;
+  INT PixelAttribs[] =
+  {
+    WGL_DRAW_TO_WINDOW_ARB, TRUE,
+    WGL_SUPPORT_OPENGL_ARB, TRUE,
+    WGL_DOUBLE_BUFFER_ARB, TRUE,
+    WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
+    WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
+    WGL_COLOR_BITS_ARB, 32,
+    WGL_DEPTH_BITS_ARB, 32,
+    0
+  };
+  INT ContextAttribs[] =
+  {
+    WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+    WGL_CONTEXT_MINOR_VERSION_ARB, 6,
+    WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
+                                  /* WGL_CONTEXT_CORE_PROFILE_BIT_ARB, */
+    0
+  };
+
   TK6_hRndWnd = hWnd;
  
   /* Prepare frame compatible device contesxt */
@@ -55,20 +54,28 @@ VOID TK6_RndInit( HWND hWnd )
   TK6_hRndGLRC = wglCreateContext(TK6_hRndDC);
   wglMakeCurrent(TK6_hRndDC, TK6_hRndGLRC);
  
-  
   if (glewInit() != GLEW_OK)
     exit(0);
  
   /* Enable a new OpenGL profile support */
   wglChoosePixelFormatARB(TK6_hRndDC, PixelAttribs, NULL, 1, &i, &i);//
-  hRC = wglCreateContextAttribsARB(TK6_hRndDC, NULL, ContextAttribs);
- 
-  wglMakeCurrent(NULL, NULL);
-  wglDeleteContext(TK6_hRndGLRC);
- 
-  TK6_hRndGLRC = hRC;
-  wglMakeCurrent(TK6_hRndDC, TK6_hRndGLRC);
+  if ((hRC = wglCreateContextAttribsARB(TK6_hRndDC, NULL, ContextAttribs)) != NULL)
+  {
+    wglMakeCurrent(NULL, NULL);
+    wglDeleteContext(TK6_hRndGLRC);
+    TK6_hRndGLRC = hRC;
+    wglMakeCurrent(TK6_hRndDC, TK6_hRndGLRC);
+  }
 
+  #ifndef NDEBUG
+    OutputDebugString(glGetString(GL_VERSION));
+    OutputDebugString("\n");
+    OutputDebugString(glGetString(GL_VENDOR));
+    OutputDebugString("\n");
+    OutputDebugString(glGetString(GL_RENDERER));
+    OutputDebugString("\n");
+  #endif /* NDEBUG */
+  
   /* Render parameters setup */
   glEnable(GL_DEPTH_TEST);
  
@@ -78,10 +85,13 @@ VOID TK6_RndInit( HWND hWnd )
   TK6_RndFrameW = 47;
   TK6_RndFrameH = 47;
   TK6_RndCamSet(VecSet(12, 12, 12), VecSet(0, 0, 0), VecSet(0, 1, 0));
+
+  TK6_RndResInit();
 }
 
 VOID TK6_RndClose( VOID )
 {
+  TK6_RndResClose();
   wglMakeCurrent(NULL, NULL);
   wglDeleteContext(TK6_hRndGLRC);
   ReleaseDC(TK6_hRndWnd, TK6_hRndDC);
@@ -139,4 +149,6 @@ VOID TK6_RndCamSet( VEC Loc, VEC At, VEC Up )
 {
   TK6_RndMatrView = MatrView(Loc, At, Up);
   TK6_RndMatrVP = MatrMulMatr(TK6_RndMatrView, TK6_RndMatrProj);
+
+  TK6_RndCamLoc = Loc;
 }

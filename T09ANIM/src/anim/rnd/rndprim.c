@@ -1,7 +1,12 @@
 /* Kurnosova Tatuana, 10-6, 09.06.2026 */
+#include <stdio.h>
 
 #include "rnd.h"
-#include "stdio.h"
+#include "anim/anim.h"
+
+
+tk6SHADER TK6_RndShaders[TK6_MAX_SHADERS];
+
 /* Primitive draw function.
  * ARGUMENTS:
  *   - primiktive to be draw:
@@ -10,21 +15,44 @@
  *       MATR World;
  * RETURNS: None.
  */
-
 VOID TK6_RndPrimDraw( tk6PRIM *Pr, MATR World )
 {
-  INT i;
-  MATR wvp = MatrMulMatr3(Pr->Trans, World, TK6_RndMatrVP);
-  INT prim_type =
+  INT prim_type;
+  MATR w, winv, wvp;
+  UINT ProgId;
+  INT loc;
+
+  if (Pr == NULL)
+    return;
+
+  prim_type =
     Pr->Type == TK6_RND_PRIM_LINES ? GL_LINES :
     Pr->Type == TK6_RND_PRIM_TRIMESH ? GL_TRIANGLES :
     GL_POINTS;
+  w = MatrMulMatr(Pr->Trans, World);
+  winv = MatrTranspose(MatrInverse(w));
+  wvp = MatrMulMatr(w, TK6_RndMatrVP);
+
+  if ((ProgId = TK6_RndMtlApply(Pr->MtlNo)) == 0)
+    return;
+
+  /* Pass render uniforms */
+  if ((loc = glGetUniformLocation(ProgId, "MatrWVP")) != -1)
+    glUniformMatrix4fv(loc, 1, FALSE, wvp.A[0]);
+  if ((loc = glGetUniformLocation(ProgId, "MatrW")) != -1)
+    glUniformMatrix4fv(loc, 1, FALSE, w.A[0]);
+  if ((loc = glGetUniformLocation(ProgId, "MatrWInv")) != -1)
+    glUniformMatrix4fv(loc, 1, FALSE, winv.A[0]);
+
+  if ((loc = glGetUniformLocation(ProgId, "Time")) != -1)
+    glUniform1f(loc, TK6_Anim.Time);
+  if ((loc = glGetUniformLocation(ProgId, "GlobalTime")) != -1)
+    glUniform1f(loc, TK6_Anim.GlobalTime);
+  if ((loc = glGetUniformLocation(ProgId, "CamLoc")) != -1)
+    glUniform3fv(loc, 1, &TK6_RndCamLoc.X);
 
 
-  glLoadMatrixf(wvp.A[0]);
- 
-  glBindVertexArray(Pr->VA);
-  
+  glBindVertexArray(Pr->VA);  
   if (Pr->IBuf == 0)
     glDrawArrays(prim_type, 0, Pr->NumOfElements);
   else
@@ -34,7 +62,7 @@ VOID TK6_RndPrimDraw( tk6PRIM *Pr, MATR World )
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   }
   glBindVertexArray(0);
-
+  glUseProgram(0); 
 }
 
 /* Primitive free function.
@@ -127,6 +155,45 @@ VOID TK6_RndPrimCreate( tk6PRIM *Pr, tk6PRIM_TYPE Type, tk6VERTEX *V, INT NoofV,
     Pr->NumOfElements = NoofV;
 } /* End of 'TK6_RndPrimCreate' function */
 
+TK6_RndPrimTriMeshAutoNormals( tk6VERTEX *V, INT NoofV, INT *Ind, INT NoofI )
+{
+  
+  VEC L  = VecNormalize(VecSet(1, 1, 1));
+  INT i;
+
+
+  for (i = 0; i < NoofV; i++)
+    V[i].N = VecSet(0, 0, 0);
+
+  for (i = 0; i < NoofI; i += 3)
+  {
+    INT
+      n0 = Ind[i],
+      n1 = Ind[i + 1],
+      n2 = Ind[i + 2];
+    VEC
+      P0 = V[n0].P,
+      P1 = V[n1].P,
+      P2 = V[n2].P,
+      N = VecNormalize(VecCrossVec(VecSubVec(P1, P0), VecSubVec(P2, P0)));
+
+    V[n0].N = VecAddVec(V[n0].N, N);
+    V[n1].N = VecAddVec(V[n1].N, N);
+    V[n2].N = VecAddVec(V[n2].N, N);
+  }
+  for (i = 0; i < NoofV; i++)
+    V[i].N = VecNormalize(V[i].N);
+
+  for (i = 0; i < NoofV; i++)
+  {
+    FLT nl  = VecDotVec(V[i].N, L);
+
+    if (nl < 0.25)
+      nl = 0.25;
+    //Pr->V[i].C = Vec4Set(Rnd1() * 0.68 * nl + 0.3, 0.12 * nl + 0.20, Rnd1() * 0.67 * nl + 0.3, 1);
+    V[i].C = Vec4AddVec4(Vec4Set(0.54 * nl, 0.17 * nl, 0.70 * nl, 0.7), Vec4Set1(0.15));
+  }
+}
 /* Create sphere primitive function.
  * ARGUMENTS:
  *   - pointer to primitive to create:
@@ -142,8 +209,9 @@ BOOL TK6_RndPrimCreateSphere( tk6PRIM *Pr, DBL R, INT W, INT H )
 {
   INT i, j, k;
   DBL theta, phi;
-  VEC L  = VecNormalize(VecSet(1, -1, -1));
   tk6VERTEX *V;
+  VEC L = VecNormalize(VecSet(1, 1, 1));
+  
   INT *Ind, size;
   
   memset(Pr, 0, sizeof(tk6PRIM));
@@ -153,35 +221,27 @@ BOOL TK6_RndPrimCreateSphere( tk6PRIM *Pr, DBL R, INT W, INT H )
     return FALSE;
   Ind = (INT *)(V + W * H);
 
-  /*
-  if (!TK6_RndPrimCreate(Pr, W * H, (H - 1) * (W - 1) * 2 * 3))
-    return FALSE;
-  */
   /* Fill vertex array */
   for (k = 0, i = 0, theta = 0; i < H; i++, theta += PI / (H - 1))
     for (j = 0, phi = 0; j < W; j++, phi += 2 * PI / (W - 1))
     {
-
-      /*
       DBL nl;
 
       V[k].N = VecSet(sin(theta) * sin(phi),
-                          cos(theta),
-                          sin(theta) * cos(phi));
-
-      nl = VecDotVec(L, V[k].N);
+                      cos(theta),
+                      sin(theta) * cos(phi));
+      nl = VecDotVec(V[k].N, L);
       if (nl < 0.3)
-        nl = 0.1;
-
-      V[k].C = Vec4MulNum(Color, nl);
-      */
-
-
-
-
+        nl = 0.3;
+      V[k].C = Vec4SetVec3(VecMulNum(VecSet(0.8, 0, 0.8), nl * 1.30));
       V[k++].P = VecSet(R * sin(theta) * sin(phi),
                             R * cos(theta),
-                            R * sin(theta) * cos(phi));
+                            R  * sin(theta) * cos(phi));
+
+      
+      V[k].N = VecSet(sin(theta) * sin(phi),
+                          cos(theta),
+                          sin(theta) * cos(phi));
     }
   /* Fill vertex array */
   for (k = 0, i = 0; i < H - 1; i++)
@@ -197,7 +257,7 @@ BOOL TK6_RndPrimCreateSphere( tk6PRIM *Pr, DBL R, INT W, INT H )
       Ind[k++] = (i + 1) * W + j + 1;
     }
 
-  // TK6_RndPrimTriMeshAutoNormals(V, W * H, Ind, (H - 1) * (W - 1));
+  //TK6_RndPrimTriMeshAutoNormals(V, W * H, Ind, (H - 1) * (W - 1));
   TK6_RndPrimCreate(Pr, TK6_RND_PRIM_TRIMESH, V, W * H, Ind, (H - 1) * (W - 1));
   
   
@@ -218,8 +278,7 @@ BOOL TK6_RndPrimCreateSphere( tk6PRIM *Pr, DBL R, INT W, INT H )
 BOOL TK6_RndPrimLoad( tk6PRIM *Pr, CHAR *FileName )
 {
   FILE *F;
-  INT i, nv = 0, nf = 0, size;
-  VEC L  = VecNormalize(VecSet(1, 1, 1));
+  INT nv = 0, nf = 0, size;
   static CHAR Buf[3000];
   tk6VERTEX *V;
   INT *Ind;
@@ -322,43 +381,8 @@ BOOL TK6_RndPrimLoad( tk6PRIM *Pr, CHAR *FileName )
     }
   }
   fclose(F);
-//  TK6_RndPrimTriMeshAutoNormals(V, vn, Ind, nf);
+//  TK6_RndPrimTriMeshAutoNormals(V, nv, Ind, nf);
   TK6_RndPrimCreate(Pr, TK6_RND_PRIM_TRIMESH, V, nv, Ind, nf);
-  
-  
-  /*
-  for (i = 0; i < Pr->NumOfV; i++)
-    Pr->V[i].N = VecSet(0, 0, 0);
-
-  for (i = 0; i < Pr->NumOfI; i += 3)
-  {
-    INT
-      n0 = Pr->I[i],
-      n1 = Pr->I[i + 1],
-      n2 = Pr->I[i + 2];
-    VEC
-      P0 = Pr->V[n0].P,
-      P1 = Pr->V[n1].P,
-      P2 = Pr->V[n2].P,
-      N = VecNormalize(VecCrossVec(VecSubVec(P1, P0), VecSubVec(P2, P0)));
-
-    Pr->V[n0].N = VecAddVec(Pr->V[n0].N, N);
-    Pr->V[n1].N = VecAddVec(Pr->V[n1].N, N);
-    Pr->V[n2].N = VecAddVec(Pr->V[n2].N, N);
-  }
-  for (i = 0; i < Pr->NumOfV; i++)
-    Pr->V[i].N = VecNormalize(Pr->V[i].N);
-
-  for (i = 0; i < Pr->NumOfV; i++)
-  {
-    FLT nl  = VecDotVec(Pr->V[i].N, L);
-
-    if (nl < 0.1)
-      nl = 0.1;
-    //Pr->V[i].C = Vec4Set(Rnd1() * 0.68 * nl + 0.3, 0.12 * nl + 0.20, Rnd1() * 0.67 * nl + 0.3, 1);
-    Pr->V[i].C = Vec4Set(0.54 * nl + 0.2, 0.17 * nl + 0.2, 0.80 * nl + 0.2, 1);
-  }
-  */
   free(V);
   return TRUE;
 } /* End of 'TK6_RndPrimLoad' function */

@@ -33,13 +33,11 @@ static VOID TK6_UnitResponse( tk6UNIT_COW *Uni, tk6ANIM *Ani )
   Uni->Pos = VecSubNum(Uni->Pos, Ani->DeltaTime * 2.4);
 }
 
- 
 static VOID TK6_UnitRender( tk6UNIT_COW *Uni, tk6ANIM *Ani )
 {
-  TK6_RndPrimDraw(&Uni->Cow, MatrMulMatr4(MatrRotateX(0), MatrRotateY(Ani->Time * 10 * Uni->Fast), MatrRotateZ(5 * cos(Ani->Time * Uni->Fast)), MatrTranslate(Uni->Pos)));
-  //TK6_RndPrimDraw(&Uni->Cow, MulMatrMul(sin(clock() / 800.0) * Uni->Fast, MatrTranslate(Uni->Pos));
+  TK6_RndPrimDraw(&Uni->Cow, MatrMulMatr4(MatrRotateX(0), MatrRotateY(10 * Uni->Fast * Ani->Time), MatrRotateZ(5 * cos(Ani->Time * Uni->Fast + 100)), MatrTranslate(Uni->Pos)));
 }
- 
+
 tk6UNIT * TK6_UnitCreateCow( VOID )
 {
   tk6UNIT_COW *Uni;
@@ -52,22 +50,3 @@ tk6UNIT * TK6_UnitCreateCow( VOID )
   Uni->Render = (VOID *)TK6_UnitRender;
   return (tk6UNIT *)Uni;
 }
-
-/*
-
-tk6UNIT * TK6_AnimUnitCreateCow( INT Size )
-{
-  tk6UNIT_COW *Uni;
- 
-  if (Size < sizeof(tk6UNIT) || (Uni = malloc(Size)) == NULL)
-    return NULL;
-  memset(Uni, 0, Size);
- 
-  Uni->Init = (VOID *)TK6_UnitInit;
-  //Uni->Close = TK6_UnitClose;
-  Uni->Response = (VOID *)TK6_UnitResponse;
-  Uni->Render = (VOID *)TK6_UnitRender;
- 
-  return Uni;
-} 
-*/

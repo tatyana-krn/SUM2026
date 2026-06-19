@@ -1,19 +1,15 @@
 /* Kurnosova Tatuana, 10-6, 040.06.2026 */
 #include <stdio.h>
 #include <conio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <windows.h>
 
 typedef DOUBLE DBL;
 
-#define N 5
-DBL Det = 0, 
-A[N][N];
-INT NUM;
-
-INT mas[N];
+#define N 3
+DBL Det = 0, A[N][N], prod = 1;
+INT NUM, mas[N];
 BOOL IsParity = TRUE;
+
 
 VOID Swap( INT *A, INT *B )
 {
@@ -65,8 +61,7 @@ VOID Debug( VOID )
 VOID Go( INT Pos )
 {
   INT i;
-  DBL prod;
-
+  
   if (Pos == NUM)
   {
     for (prod = 1, i = 0; i < NUM; i++)
@@ -76,11 +71,12 @@ VOID Go( INT Pos )
   for (i = Pos; i < N; i++)
   {
     Swap(&mas[Pos], &mas[i]);
-    IsParity = !IsParity;
+    if (Pos != i)
+      IsParity = !IsParity;
     Go(Pos + 1);
-    Swap(&mas[Pos], &mas[i]);   
+    Swap(&mas[Pos], &mas[i]);
+    IsParity = !IsParity; 
   }
-  IsParity = !IsParity; 
 }
 
 VOID main( VOID )

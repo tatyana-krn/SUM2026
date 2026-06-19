@@ -29,6 +29,8 @@ typedef struct tagtk6ANIM
   BYTE KeysClick[256];
   BYTE KeysOld[256];
 
+  INT Mx, My, Mz, MDx, MDy, MDz;
+
   DBL
     GlobalTime, GlobalDeltaTime, /* Global time and interframe interval */
     Time, DeltaTime,             /* Time with pause and interframe interval */

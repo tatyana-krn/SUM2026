@@ -1,49 +1,69 @@
 /* Kurnosova Tatuana, 10-6, 09.06.2026 */
+#include <stdio.h>
 
-#include <time.h>
 
 #include "units.h"
 
-typedef struct tagtk6UNIT_COW tk6UNIT_COW;
 
-struct tagtk6UNIT_COW
+typedef struct tagtk6UINT_CONTROL
 {
   UNIT_BASE_FIELDS;
-  tk6PRIM Cow;
-  VEC Pos;
-  DBL Fast;
-};
- 
-static VOID TK6_UnitInit( tk6UNIT_COW *Uni, tk6ANIM *Ani )
-{
-  //TK6_RndPrimCreateSphere(&Uni->Cow, 3, 40, 40);
+  VEC CamLoc, CamDir, CamAt;
+  DBL Speed;
+} tk6UNIT_CONTROL;
 
-  Uni->Pos = VecSet(Rnd1() * 10, -2, Rnd1() * 10);
-  TK6_RndPrimLoad(&Uni->Cow, "bin/models/cow.obj");
-  Uni->Fast = rand() % 5 + 3;
-}
- 
-static VOID TK6_UnitClose( tk6UNIT_COW *Uni, tk6ANIM *Ani )
+static VOID TK6_UnitInit( tk6UNIT_CONTROL *Uni, tk6ANIM *Ani )
 {
-  TK6_RndPrimFree(&Uni->Cow);
+  Uni->CamLoc = VecSet(8, 8, 8);
+  Uni->CamDir = VecSet(3, 3, 3);
+  Uni->CamAt = VecSet(0, 0, 0);
+  Uni->Speed = 10;
+}
+static VOID TK6_UnitClose( tk6UNIT_CONTROL *Uni, tk6ANIM *Ani )
+{
 }
 
-static VOID TK6_UnitResponse( tk6UNIT_COW *Uni, tk6ANIM *Ani )
+static VOID TK6_UnitResponse( tk6UNIT_CONTROL *Uni, tk6ANIM *Ani )
 {
-  Uni->Pos = VecSubNum(Uni->Pos, Ani->DeltaTime * 2.4);
+  VEC d;
+ 
+  if (Ani->KeysClick['P'])
+    Ani->IsPause = !Ani->IsPause;
+
+  if (Ani->KeysClick[VK_ESCAPE])
+    TK6_AnimExit();
+
+  d = VecNormalize(VecSubVec(Uni->CamAt, Uni->CamLoc));;
+  //Uni->CamLoc += Uni->CamDir * Uni->Speed * d;
+
+  Uni->CamLoc = 
+    VecAddVec(Uni->CamLoc,
+    VecMulNum(Uni->CamDir, Ani->GlobalDeltaTime * Uni->Speed * (Ani->Keys[VK_UP] - Ani->Keys[VK_DOWN])));
+
+  TK6_RndCamSet(Uni->CamLoc, Uni->CamAt, VecSet(0, 1, 0));
+
 }
 
- 
-static VOID TK6_UnitRender( tk6UNIT_COW *Uni, tk6ANIM *Ani )
+
+
+static VOID TK6_UnitRender( tk6UNIT_CONTROL *Uni, tk6ANIM *Ani )
 {
-  TK6_RndPrimDraw(&Uni->Cow, MatrMulMatr4(MatrRotateX(0), MatrRotateY(Ani->Time * 10 * Uni->Fast), MatrRotateZ(5 * cos(Ani->Time * Uni->Fast)), MatrTranslate(Uni->Pos)));
+  CHAR Buf[102];
+  static DBL OldTime;
+  
+  if (Ani->GlobalTime - OldTime > 2)
+  {
+    sprintf(Buf, "FPS: %.3f", Ani->FPS);
+    SetWindowText(Ani->hWnd, Buf);
+    OldTime = Ani->GlobalTime;
+  }
 }
- 
+
 tk6UNIT * TK6_UnitCreateControl( VOID )
 {
-  tk6UNIT_COW *Uni;
+  tk6UNIT_CONTROL *Uni;
  
-  Uni = (tk6UNIT_COW *)TK6_AnimUnitCreate(sizeof(tk6UNIT_COW));
+  Uni = (tk6UNIT_CONTROL *)TK6_AnimUnitCreate(sizeof(tk6UNIT_CONTROL));
   if (Uni == NULL)
     return NULL;
   Uni->Init = (VOID *)TK6_UnitInit;

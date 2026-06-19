@@ -5,6 +5,7 @@
 HWND TK6_hRndWnd;        /* Work window handle */
 HDC TK6_hRndDC;     /* Work window memory device context  */
 INT TK6_RndFrameW, TK6_RndFrameH; /* Work window size */
+HGLRC TK6_hRndGLRC;
  
 DBL
   TK6_RndProjSize = 0.1,     /* Project plane fit square */
@@ -16,5 +17,7 @@ MATR
   TK6_RndMatrProj, /* Projection coordinate system matrix */
   TK6_RndMatrVP;   /* Stored (View * Proj) matrix */
 
+VEC
+  TK6_RndCamLoc;
 
   

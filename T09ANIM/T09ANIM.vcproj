@@ -225,6 +225,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\src\anim\rnd\rnddebug.c"
+						>
+					</File>
+					<File
 						RelativePath=".\src\anim\rnd\rndprim.c"
 						>
 					</File>
@@ -233,6 +237,30 @@
 						>
 						<File
 							RelativePath=".\src\anim\rnd\OpenGL\glew.c"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="Resources"
+						>
+						<File
+							RelativePath=".\src\anim\rnd\res\rndmtl.c"
+							>
+						</File>
+						<File
+							RelativePath=".\src\anim\rnd\res\rndres.c"
+							>
+						</File>
+						<File
+							RelativePath=".\src\anim\rnd\res\rndres.h"
+							>
+						</File>
+						<File
+							RelativePath=".\src\anim\rnd\res\rndshd.c"
+							>
+						</File>
+						<File
+							RelativePath=".\src\anim\rnd\res\rndtex.c"
 							>
 						</File>
 					</Filter>
