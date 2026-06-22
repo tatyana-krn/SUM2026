@@ -5,7 +5,7 @@
 
 #include "units/units.h"
 
-#define WND_CLASS_NAME "Z z z lelele"
+#define WND_CLASS_NAME "Zzz lelele"
 
 LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam );
 
@@ -62,10 +62,14 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrewInstance, CHAR *CmdLine,
   hwnd = CreateWindow(WND_CLASS_NAME, "lele le can cancan", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 1950, 0, 900, 700, NULL, NULL, hInstance, NULL);
  
   TK6_AnimUnitAdd(TK6_UnitCreateCow());
+  /*
   TK6_AnimUnitAdd(TK6_UnitCreateCow());
   TK6_AnimUnitAdd(TK6_UnitCreateCow());
   TK6_AnimUnitAdd(TK6_UnitCreateCow());
   TK6_AnimUnitAdd(TK6_UnitCreateCow());
+  */
+
+  TK6_AnimUnitAdd(TK6_UnitCreateG3DM());
   
   TK6_AnimUnitAdd(TK6_UnitCreateControl());
   
@@ -80,7 +84,10 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrewInstance, CHAR *CmdLine,
       DispatchMessage(&msg);
     }
     else
-      SendMessage(hwnd, WM_TIMER, 47, 0);
+    {
+      TK6_AnimRender();
+      TK6_AnimCopyFrame();
+    }
   /*
   while (GetMessage(&msg, NULL, 0, 0))
   {
@@ -125,13 +132,15 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     return 0;
   case WM_ERASEBKGND:
     return 1;
+  case WM_MOUSEWHEEL:
+    TK6_MouseWheel += (SHORT)HIWORD(wParam);
+    return 0;
   case WM_DESTROY:
     TK6_AnimClose();
     PostQuitMessage(30);
     KillTimer(hWnd, 47);
     return 0;
   }
-
   return DefWindowProc(hWnd, Msg, wParam, lParam);
 }
 

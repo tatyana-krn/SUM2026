@@ -20,4 +20,7 @@ MATR
 VEC
   TK6_RndCamLoc;
 
-  
+INT 
+  TK6_RndShdAddonI[8], 
+  TK6_RndShdAddonF[8],
+  TK6_RndShdAddonV[8];

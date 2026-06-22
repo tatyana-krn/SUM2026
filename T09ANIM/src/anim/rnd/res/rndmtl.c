@@ -21,6 +21,13 @@ tk6MATERIAL TK6_RndMtlGetDef( VOID )
   return def_mtl;
 }
 
+tk6MATERIAL * TK6_RndMtlGet( INT MtlNo )
+{
+  if (MtlNo < 0 || MtlNo >= TK6_RndMaterialsSize)
+    MtlNo = 0;
+  return &TK6_RndMaterials[MtlNo];
+}
+
 VOID TK6_RndMtlInit( VOID )
 {
   tk6MATERIAL def = TK6_RndMtlGetDef();

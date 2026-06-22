@@ -13,6 +13,7 @@ VOID TK6_AnimInit( HWND hWnd )
   TK6_Anim.H = TK6_RndFrameH;
   TK6_Anim.W = TK6_RndFrameW;
   TK6_TimerInit();
+  TK6_InputInit();
 }
 
 VOID TK6_AnimClose( VOID )
@@ -47,6 +48,7 @@ VOID TK6_AnimRender( VOID )
   INT i;
   
   TK6_TimerResponse();
+  TK6_InputResponse();
 
   for (i = 0; i < TK6_Anim.NumOfUnits; i++)
     TK6_Anim.Units[i]->Response(TK6_Anim.Units[i], &TK6_Anim);

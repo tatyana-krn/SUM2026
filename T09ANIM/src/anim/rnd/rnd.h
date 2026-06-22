@@ -92,6 +92,7 @@ VOID TK6_RndPrimDraw( tk6PRIM *Pr, MATR World );
 VOID TK6_RndPrimFree( tk6PRIM *Pr );
 VOID TK6_RndPrimCreate( tk6PRIM *Pr, tk6PRIM_TYPE Type, tk6VERTEX *V, INT NoofV, INT *Ind, INT NoofI );
 BOOL TK6_RndPrimCreateSphere( tk6PRIM *Pr, DBL R, INT W, INT H );
+VOID TK6_RndPrimTriMeshAutoNormals( tk6VERTEX *V, INT NoofV, INT *Ind, INT NoofI );
 
 BOOL TK6_RndPrimLoad( tk6PRIM *Pr, CHAR *FileName );
 
@@ -100,6 +101,22 @@ VOID APIENTRY glDebugOutput( UINT Source, UINT Type, UINT Id, UINT Severity,
                              const VOID *UserParam );
 
 
+typedef struct tagtk6PRIMS
+{
+  INT NumOfPrims; /* Number of primitives in array */  
+  tk6PRIM *Prims; /* Array of primitives */
+  MATR Trans;     /* Common transformation matrix */
+} tk6PRIMS;
+
+extern INT 
+  TK6_RndShdAddonI[8], 
+  TK6_RndShdAddonF[8],
+  TK6_RndShdAddonV[8];
+
+BOOL TK6_RndPrimsCreate( tk6PRIMS *Prs, INT NumOfPrims );
+VOID TK6_RndPrimsFree( tk6PRIMS *Prs );
+VOID TK6_RndPrimsDraw( tk6PRIMS *Prs, MATR World );
+BOOL TK6_RndPrimsLoad( tk6PRIMS *Prs, CHAR *FileName );
 
 #endif /* __rnd_h_ */
  

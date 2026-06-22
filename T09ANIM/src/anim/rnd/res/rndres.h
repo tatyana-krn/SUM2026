@@ -70,6 +70,7 @@ extern tk6MATERIAL TK6_RndMaterials[TK6_MAX_MATERIALS]; /* Array of materials */
 extern INT TK6_RndMaterialsSize;                        /* Materials array */
 
 tk6MATERIAL TK6_RndMtlGetDef( VOID );
+tk6MATERIAL * TK6_RndMtlGet( INT MtlNo );
 VOID TK6_RndMtlInit( VOID );
 VOID TK6_RndMtlClose( VOID );
 INT TK6_RndMtlAdd( tk6MATERIAL *Mtl );

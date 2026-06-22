@@ -1,14 +1,17 @@
 /* Kurnosova Tatuana, 10-6, 040.06.2026 */
 #include <stdio.h>
-#include <conio.h>
+#include <stdlib.h>
 #include <windows.h>
+#include <conio.h>
 
 typedef DOUBLE DBL;
 
-#define N 3
-DBL Det = 0, A[N][N], prod = 1;
-INT NUM, mas[N];
+#define MAX 7
+DBL A[MAX][MAX];
+INT P[MAX], N = 0;
+DBL Det = 0;
 BOOL IsParity = TRUE;
+
 
 
 VOID Swap( INT *A, INT *B )
@@ -17,30 +20,6 @@ VOID Swap( INT *A, INT *B )
 
   *A = *B;
   *B = C;
-}
-
-BOOL LoadMatrix( CHAR *FileName )
-{
-  FILE *F;
-  INT i, j;
-
-  NUM = 0;
-  if ((F = fopen(FileName, "r")) == NULL)
-    return FALSE;
-
-  fscanf(F, "%d", &NUM);
-  if (NUM < 0)
-    NUM = 0;
-  else
-    if (NUM > N)
-      NUM = N;
-
-  for (i = 0; i < NUM; i++)
-    for (j = 0; j < NUM; j++)
-      fscanf(F, "%lf", &A[i][j]);
-
-  fclose(F);
-  return TRUE;
 }
 
 VOID Debug( VOID )
@@ -55,42 +34,75 @@ VOID Debug( VOID )
   }
 }
 
-/// <<< BEPHO 
-// HE BEPHO >>>
+BOOL LoadMatrix( CHAR *FileName )
+{
+  FILE *F;
+  INT i, j;
+
+  if ((F = fopen(FileName, "r")) == NULL)
+    return FALSE;
+
+  fscanf(F, "%d", &N);
+  if (N < 0)
+    N = 0;
+  else
+    if (N > MAX)
+      N = MAX;
+
+  for (i = 0; i < N; i++)
+    for (j = 0; j < N; j++)
+      fscanf(F, "%lf", &A[i][j]);
+
+  fclose(F);
+  return TRUE;
+}
 
 VOID Go( INT Pos )
 {
   INT i;
-  
-  if (Pos == NUM)
+  DBL prod;
+
+  if (Pos == N)
   {
-    for (prod = 1, i = 0; i < NUM; i++)
-      prod *= A[i][mas[i]];
-    Det += prod * (IsParity * 2 - 1);
+    for (prod = 1, i = 0; i < N; i++)
+      prod *= A[i][P[i]];
+    Det += prod * (IsParity ? 1 : -1);
+    return;
   }
-  for (i = Pos; i < N; i++)
-  {
-    Swap(&mas[Pos], &mas[i]);
-    if (Pos != i)
-      IsParity = !IsParity;
-    Go(Pos + 1);
-    Swap(&mas[Pos], &mas[i]);
-    IsParity = !IsParity; 
-  }
+  else
+    for (i = Pos; i < N; i++)
+    {
+      if (i != Pos)
+      {
+        Swap(&P[Pos], &P[i]);
+        IsParity = !IsParity;
+      }
+      Go(Pos + 1);
+      if (i != Pos)
+      {
+        Swap(&P[Pos], &P[i]);
+        IsParity = !IsParity;
+      }
+    }
 }
+
 
 VOID main( VOID )
 {
   INT i;
 
-  for (i = 0; i < N; i++)
-    mas[i] = i;
-  if (LoadMatrix("IN.TXT"))
+  for (i = 0; i < MAX; i++)
+    P[i] = i;
+
+  if (!LoadMatrix("IN.txt"))
+  {
+    printf("fail\n");
+  }
+  else
   {
     Debug();
-
-    Go(0); 
-    printf(" Determinant : %d\n", Det);  
+    Go(0);
+    printf("Solution : %lf", Det);
   }
   _getch();
 }

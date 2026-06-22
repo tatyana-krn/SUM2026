@@ -208,7 +208,7 @@ static VOID TK6_RndShdFree( UINT ProgId )
 VOID TK6_RndShdInit( VOID )
 {
   TK6_RndShadersSize = 0;
-  TK6_RndShdAdd("test");
+  TK6_RndShdAdd("default");
 } /* End of 'TK6_RndResInit' function */
  
 /* Shaders deinitialization function.

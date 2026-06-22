@@ -116,7 +116,9 @@ VOID TK6_RndStart( VOID )
 {
   VEC4 ClearColor = {0.20, 0.77, 0.87, 1};
   FLT DepthClearValue = 1;
- 
+
+  TK6_RndShdUpdate();
+
   /* Clear frame */
   glClearBufferfv(GL_COLOR, 0, &ClearColor.X);
   glClearBufferfv(GL_DEPTH, 0, &DepthClearValue);

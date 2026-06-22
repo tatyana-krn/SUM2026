@@ -29,7 +29,7 @@ typedef struct tagtk6ANIM
   BYTE KeysClick[256];
   BYTE KeysOld[256];
 
-  INT Mx, My, Mz, MDx, MDy, MDz;
+  INT Mx, My, Mz, Mdx, Mdy, Mdz;
 
   DBL
     GlobalTime, GlobalDeltaTime, /* Global time and interframe interval */
@@ -46,6 +46,7 @@ struct tagtk6UNIT
 
 
 extern tk6ANIM TK6_Anim;
+extern INT TK6_MouseWheel;
 
 VOID TK6_AnimInit( HWND hWnd );
 VOID TK6_AnimClose( VOID );
@@ -61,6 +62,9 @@ tk6UNIT * TK6_AnimUnitCreate( INT Size );
 
 VOID TK6_TimerInit( VOID );
 VOID TK6_TimerResponse( VOID );
+
+VOID TK6_InputInit( VOID );
+VOID TK6_InputResponse( VOID );
 
 #endif /* __anim_h_ */
  

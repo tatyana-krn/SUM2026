@@ -1,4 +1,3 @@
-
 /* Kurnosova Tatuana, 10-6, 06.06.2026 */
 #include <windows.h>
 #include <math.h>
@@ -93,8 +92,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     SetDCBrushColor(hMemDC, RGB(0, 0, 0));
     SelectObject(hMemDC, GetStockObject(DC_BRUSH));
     Rectangle(hMemDC, 0, 0, W, H); 
-    
-    
+
     SelectObject(hMemDC, GetStockObject(DC_BRUSH));
     GLB_Draw(hMemDC);
 

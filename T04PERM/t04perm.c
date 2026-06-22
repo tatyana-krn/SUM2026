@@ -49,7 +49,7 @@ VOID Go( INT Pos )
     Swap(&mas[Pos], &mas[i]);
     IsParity = !IsParity;
     Go(Pos + 1);
-    Swap(&mas[Pos], &mas[i]);   
+    Swap(&mas[Pos], &mas[i]);
   }
   IsParity = !IsParity;
 }

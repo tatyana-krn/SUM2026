@@ -5,8 +5,6 @@
 #include "anim/anim.h"
 
 
-tk6SHADER TK6_RndShaders[TK6_MAX_SHADERS];
-
 /* Primitive draw function.
  * ARGUMENTS:
  *   - primiktive to be draw:
@@ -43,16 +41,16 @@ VOID TK6_RndPrimDraw( tk6PRIM *Pr, MATR World )
     glUniformMatrix4fv(loc, 1, FALSE, w.A[0]);
   if ((loc = glGetUniformLocation(ProgId, "MatrWInv")) != -1)
     glUniformMatrix4fv(loc, 1, FALSE, winv.A[0]);
-
   if ((loc = glGetUniformLocation(ProgId, "Time")) != -1)
     glUniform1f(loc, TK6_Anim.Time);
   if ((loc = glGetUniformLocation(ProgId, "GlobalTime")) != -1)
     glUniform1f(loc, TK6_Anim.GlobalTime);
+
   if ((loc = glGetUniformLocation(ProgId, "CamLoc")) != -1)
     glUniform3fv(loc, 1, &TK6_RndCamLoc.X);
 
 
-  glBindVertexArray(Pr->VA);  
+  glBindVertexArray(Pr->VA);
   if (Pr->IBuf == 0)
     glDrawArrays(prim_type, 0, Pr->NumOfElements);
   else
@@ -155,7 +153,7 @@ VOID TK6_RndPrimCreate( tk6PRIM *Pr, tk6PRIM_TYPE Type, tk6VERTEX *V, INT NoofV,
     Pr->NumOfElements = NoofV;
 } /* End of 'TK6_RndPrimCreate' function */
 
-TK6_RndPrimTriMeshAutoNormals( tk6VERTEX *V, INT NoofV, INT *Ind, INT NoofI )
+VOID TK6_RndPrimTriMeshAutoNormals( tk6VERTEX *V, INT NoofV, INT *Ind, INT NoofI )
 {
   
   VEC L  = VecNormalize(VecSet(1, 1, 1));
@@ -381,7 +379,7 @@ BOOL TK6_RndPrimLoad( tk6PRIM *Pr, CHAR *FileName )
     }
   }
   fclose(F);
-//  TK6_RndPrimTriMeshAutoNormals(V, nv, Ind, nf);
+  TK6_RndPrimTriMeshAutoNormals(V, nv, Ind, nf);
   TK6_RndPrimCreate(Pr, TK6_RND_PRIM_TRIMESH, V, nv, Ind, nf);
   free(V);
   return TRUE;

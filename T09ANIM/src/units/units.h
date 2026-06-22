@@ -12,6 +12,7 @@ tk6UNIT * TK6_UnitCreateCow( VOID );
 tk6UNIT_COW * TK6_AnimUnitCreateCow( INT Size );
 
 tk6UNIT * TK6_UnitCreateControl( VOID );
+tk6UNIT * TK6_UnitCreateG3DM( VOID );
 
 #endif /* __units_h_ */
  

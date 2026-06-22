@@ -202,6 +202,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\anim\input.c"
+					>
+				</File>
+				<File
 					RelativePath=".\src\anim\timer.c"
 					>
 				</File>
@@ -230,6 +234,10 @@
 					</File>
 					<File
 						RelativePath=".\src\anim\rnd\rndprim.c"
+						>
+					</File>
+					<File
+						RelativePath=".\src\anim\rnd\rndprims.c"
 						>
 					</File>
 					<Filter
@@ -283,6 +291,10 @@
 				</File>
 				<File
 					RelativePath=".\src\units\u_ctrl.c"
+					>
+				</File>
+				<File
+					RelativePath=".\src\units\u_g3dm.c"
 					>
 				</File>
 				<File
