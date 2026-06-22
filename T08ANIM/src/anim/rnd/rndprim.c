@@ -122,6 +122,48 @@ BOOL TK6_RndPrimCreateSphere( tk6PRIM *Pr, DBL R, INT W, INT H )
 } /* End of 'TK6_RndPrimCreateSphere' function */
 
 
+/* Create Cilinder primitive function.
+ * ARGUMENTS:
+ *   - pointer to primitive to create:
+ *       tk6PRIM *Pr;
+ *   - sphere radius:
+ *       DBL R;
+ *   - split parts counts:
+ *       INT W, H;
+ * RETURNS:
+ *   (BOOL) TRUE if success, FALSE otherwise.
+ */
+BOOL TK6_RndPrimCreateCilinder( tk6PRIM *Pr, DBL R, INT W, INT H, INT Y )
+{
+  INT i, j, k;
+  DBL theta, phi;
+ 
+  if (!TK6_RndPrimCreate(Pr, W * H, (H - 1) * (W - 1) * 2 * 3))
+    return FALSE;
+ 
+  /* Fill vertex array */
+  for (k = 0, i = 0, theta = 0; i < H; i++, theta += PI / (H - 1))
+    for (j = 0, phi = 0; j < W; j++, phi += 2 * PI / (W - 1))
+      Pr->V[k++].P = VecSet(R * cos(phi),
+                            Y,
+                            R * sin(phi));
+ 
+  /* Fill vertex array */
+  for (k = 0, i = 0; i < H - 1; i++)
+    for (j = 0; j < W - 1; j++)
+    {
+      /* bottom-left */
+      Pr->I[k++] = i * W + j;
+      Pr->I[k++] = i * W + j + 1;
+      Pr->I[k++] = (i + 1) * W + j;
+      /* top-right */
+      Pr->I[k++] = (i + 1) * W + j;
+      Pr->I[k++] = i * W + j + 1;
+      Pr->I[k++] = (i + 1) * W + j + 1;
+    }
+  return TRUE;
+} /* End of 'TK6_RndPrimCreateCilinder' function */
+
 /* Primitive free function.
  * ARGUMENTS:
  *   - primitive to be load:

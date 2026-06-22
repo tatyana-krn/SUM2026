@@ -17,7 +17,9 @@ struct tagtk6UNIT_COW
 static VOID TK6_UnitInit( tk6UNIT_COW *Uni, tk6ANIM *Ani )
 {
   Uni->Pos = VecSet(-5 + rand() % 7, -4, -3 + rand() % 7);
-  TK6_RndPrimLoad(&Uni->Cow, "bin/models/cow.obj");
+  //TK6_RndPrimLoad(&Uni->Cow, "bin/models/cow.obj");
+  TK6_RndPrimCreateSphere(&Uni->Cow, 1, 10, 10);
+  TK6_RndPrimCreateCilinder(&Uni->Cow, 1, 10, 10, 10);
   Uni->Fast = rand() % 5 + 3;
 }
  

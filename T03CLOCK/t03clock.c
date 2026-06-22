@@ -14,7 +14,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
 
 VOID DrawHand( HWND hWnd, HDC hDC, INT Xc, INT Yc, INT L, INT W, DOUBLE alpha)
 {
-  INT X, Y, i;
+  INT i;
   POINT pnts[] =
   {
     {L, 0}, {L - W / 2, W / 2}, {L / 2, 3 * W / 2}, {L / 4, W}, {0, 3 * W / 4}, {-W, W / 4}, {-2 * W, W}, {-7 * W / 4, 0}, {-2 * W, -W}, {-W, -W / 4}, {0, -3 * W / 2}, {L / 5, -4 * W / 3}, {3 * L / 10, -2 * W}, {2 * L / 3, -4 * W / 3}, {4 * L / 5, -W}
@@ -23,7 +23,7 @@ VOID DrawHand( HWND hWnd, HDC hDC, INT Xc, INT Yc, INT L, INT W, DOUBLE alpha)
   
   for (i = 0; i < 15; i++)
   {
-    pnts_res[i].x = (INT)(Xc + pnts[i].x * cos(alpha) + pnts[i].y * cos(alpha));
+    pnts_res[i].x = (INT)(Xc + pnts[i].x * cos(alpha) + pnts[i].y * sin(alpha));
     pnts_res[i].y = (INT)(Yc - pnts[i].y * cos(alpha) + pnts[i].x * sin(alpha));
   }
   Polygon(hDC, pnts_res, sizeof(pnts_res) / sizeof(pnts_res[0]));  
@@ -95,16 +95,9 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
   case WM_CREATE:
     hDC = GetDC(hWnd);
     hMemDC  = CreateCompatibleDC(hDC);
-    ReleaseDC(hWnd, hDC);
-    SetTimer(hWnd, 30, 10, NULL);
-
     hDCClock = CreateCompatibleDC(hMemDC);
     hBmClock = CreateCompatibleBitmap(hDCClock, W, H);
     hBmClock = LoadImage(NULL, "cloke.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    
-    hDCSoda = CreateCompatibleDC(hMemDC);
-    hBmSoda = CreateCompatibleBitmap(hDCSoda, W, H);
-    hBmSoda = LoadImage(NULL, "soda.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     
     
     hFnt =
@@ -112,6 +105,10 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
         OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY,
         VARIABLE_PITCH | FF_SWISS, "");
     hOldFnt = SelectObject(hMemDC, hFnt);
+
+    
+    ReleaseDC(hWnd, hDC);
+    SetTimer(hWnd, 30, 10, NULL);
 
     return 0;
   case WM_SIZE:
@@ -123,13 +120,14 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     hDC = GetDC(hWnd);
     hBm = CreateCompatibleBitmap(hDC, W, H);
     ReleaseDC(hWnd, hDC);
-    SelectObject(hMemDC, hBm);
+    //SelectObject(hMemDC, hBm);
 
     return 0;
   case WM_LBUTTONDOWN:
     InvalidateRect(hWnd, NULL, FALSE);
     return 0;
   case WM_TIMER:
+    SelectObject(hMemDC, hBm);
     SetDCBrushColor(hMemDC, RGB(23, 67, 86));
     SelectObject(hMemDC, GetStockObject(DC_BRUSH));
     Rectangle(hMemDC, 0, 0, W, H); 
@@ -145,30 +143,16 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     hOldPen = SelectObject(hMemDC, hPen);
     angle = (st.wSecond - 15 + st.wMilliseconds / 1000.0) * pi / 30;
     DrawHand(hWnd, hMemDC, W / 2, H / 2, 250, 30, angle);
-    pt.x = W / 2 + (INT)(cos(angle) * 250);
-    pt.y = H / 2 + (INT)(sin(angle) * 250);
-    MoveToEx(hMemDC, W / 2, H / 2, NULL);
-    LineTo(hMemDC, pt.x, pt.y);
 
     hPen = CreatePen(PS_SOLID, 5, RGB(0, 100, 0));
     hOldPen = SelectObject(hMemDC, hPen);
     angle = (st.wMinute - 15 + (st.wSecond - 15) / 60.0) * pi / 30;
     DrawHand(hWnd, hMemDC, W / 2, H / 2, 80, 20, angle);
-    pt.x = W / 2 + (INT)(cos(angle) * 250);
-    pt.y = H / 2 + (INT)(sin(angle) * 250);
-    MoveToEx(hMemDC, W / 2, H / 2, NULL);
-    LineTo(hMemDC, pt.x, pt.y);
 
-    
     hPen = CreatePen(PS_SOLID, 7, RGB(0, 0, 70));
     hOldPen = SelectObject(hMemDC, hPen);
     angle = (st.wHour - 2.78 + (st.wMinute - 15) / 60.0) * pi / 6;
     DrawHand(hWnd, hMemDC, W / 2, H / 2, 40, 5, angle);
-    pt.x = W / 2 + (INT)(cos(angle) * 250);
-    pt.y = H / 2 + (INT)(sin(angle) * 250);
-    MoveToEx(hMemDC, W / 2, H / 2, NULL);
-    LineTo(hMemDC, pt.x, pt.y);
-
     
     SetBkColor(hMemDC, RGB(220, 220, 180));
    

@@ -54,6 +54,8 @@ VOID TK6_RndPrimFree( tk6PRIM *Pr );
 BOOL TK6_RndPrimCreate( tk6PRIM *Pr, INT NoofV, INT NoofI );
 BOOL TK6_RndPrimCreateSphere( tk6PRIM *Pr, DBL R, INT W, INT H );
 
+BOOL TK6_RndPrimCreateCilinder( tk6PRIM *Pr, DBL R, INT W, INT H, INT Y );
+
 BOOL TK6_RndPrimLoad( tk6PRIM *Pr, CHAR *FileName );
 #endif /* __rnd_h_ */
  

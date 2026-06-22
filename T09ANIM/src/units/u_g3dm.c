@@ -14,7 +14,7 @@ struct tagtk6UNIT_G3DM
 static VOID TK6_UnitInit( tk6UNIT_G3DM *Uni, tk6ANIM *Ani )
 {
   Uni->Pos = VecSet(0, 0, 0);
-  TK6_RndPrimsLoad(&Uni->Models, "bin/models/fridge.g3dm");
+  TK6_RndPrimsLoad(&Uni->Models, "bin/models/Mi8_old.g3dm");
 }
 
 static VOID TK6_UnitClose( tk6UNIT_G3DM *Uni, tk6ANIM *Ani )

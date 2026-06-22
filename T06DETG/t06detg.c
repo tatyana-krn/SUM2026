@@ -1,21 +1,19 @@
 /* Kurnosova Tatuana, 10-6, 040.06.2026 */
 #include <stdio.h>
 #include <conio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <math.h>
 #include <windows.h>
 
 typedef DOUBLE DBL;
 
-#define MAX 3
-DBL A[MAX][MAX];
+#define MAX 7
+DBL A[MAX][MAX], Det = 0;
 INT N;
 BOOL IsParity = TRUE;
-DBL Det = 0;
 
-VOID Swap( INT *A, INT *B )
+VOID Swap( DBL *A, DBL *B )
 {
-  INT C;
+  DBL C;
 
   C = *A;
   *A = *B;
@@ -58,97 +56,39 @@ BOOL LoadMatrix( CHAR *FileName )
   return TRUE;
 }
 
-VOID Go( INT Pos )
+VOID Go( VOID )
 {
-  INT i;
-  DBL prod = 1;
+  INT i, y, x, k, max_r, max_c;
+  DBL coef;
 
-  if (Pos == NUM)
-  {
-    for (prod = 1, i = 0; i < NUM; i++)
-      prod *= A[i][mas[i]];
-    Determinant += (IsParity * 2 - 1) * prod;
-  }
-  else
-    for (i = Pos; i < NUM; i++)
-    {
-      if (i != Pos)
-      {
-        Swap(&mas[Pos], &mas[i]);
-        IsParity = !IsParity;
-      }
-      Go(Pos + 1);
-      if (i != Pos)
-      {
-        Swap(&mas[Pos], &mas[i]);
-        IsParity = !IsParity;
-      }
-    }
-}
-
-VOID main( VOID )
-{
-  INT i;
-
-  for (i = 0; i < N; i++)
-    mas[i] = i + 1;
-  LoadMatrix("IN.TXT");
-  Go(0); 
-  _getch();
-}
-
-
-
-
-
-
-/* Swap two double values function */
-VOID Swap( DBL *A, DBL *B )
-{
-  DBL temp;
-
-  temp = *A;
-  *A = *B;
-  *B = temp;
-} /* End of 'Swap' function */
-
-/**/
-
-DBL Detg( VOID )
-{
-  INT max_row, max_col, i, x, y, k;
-  DBL coef, det;
-
-  det = 1;
+  Det = 1;
   for (i = 0; i < N; i++)
   {
-    /* look for maximum matrix element */
-    max_row = max_col = i;
+    max_r = max_c = i;
     for (y = i; y < N; y++)
       for (x = i; x < N; x++)
-        if (fabs(A[y][x]) > fabs(A[max_row][max_col]))
-          max_row = y, max_col = x;
-    if (A[max_row][max_col] == 0)
+        if (fabs(A[y][x]) > fabs(A[max_r][max_c]))
+          max_r = y, max_c = x;
+
+    if (A[max_r][max_c] == 0)
     {
-      det = 0;
+      Det = 0;
       break;
     }
-    /* move max element to [i][i] position */
-    if (max_row != i)
+
+    if (max_r != i)
     {
-      /* Swap max_row and i row (elements/columns: [i..N-1]) */
       for (x = i; x < N; x++)
-        Swap(&A[max_row][x], &A[i][x]);
-      det = -det;
+        Swap(&A[max_r][x], &A[i][x]);
+      Det = -Det;
     }
-    if (max_col != i)
+    
+    if (max_c != i)
     {
-      /* Swap max_col and i column (elements/columns: [0..N-1]) */
       for (y = i; y < N; y++)
-        Swap(&A[y][max_col], &A[y][i]);
-      det = -det;
+        Swap(&A[y][max_c], &A[y][i]);
+      Det = -Det;
     }
-    /* Subtrack from every row k:[i+1..N-1] row [i] multipled by (A[k][i] / A[i][i]) */
     for (k = i + 1; k < N; k++)
     {
       coef = A[k][i] / A[i][i];
@@ -156,19 +96,22 @@ DBL Detg( VOID )
       for (x = i + 1; x < N; x++)
         A[k][x] -= A[i][x] * coef;
     }
-    det *= A[i][i];
+
+    Det *= A[i][i];
   }
-  return det;
-} /* End of '' function */
- 
+}
 
-void main( void )
+VOID main( VOID )
 {
-  LoadMatrix("IN.txt");
-
-  printf("%lf", Detg());
-  //Debugg();
+  if (!LoadMatrix("IN.txt"))
+  {
+    printf("fail\n");
+  }
+  else
+  {
+    Debug();
+    Go();
+    printf("Solution (GAUSS): %lf", Det);
+  }
   _getch();
-} /* End of 'main' function */
-
-
+}
